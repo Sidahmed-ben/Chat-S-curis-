@@ -5,12 +5,11 @@ void printBits(size_t const size, void const * const ptr)
 {
     unsigned char *b = (unsigned char*) ptr;
     unsigned char byte;
-    int i, j,ind;
+    int i, j;
     
     for (i = 0; i < size; i++) {
         for (j = 7; j >=0; j--) {
             byte = (b[i] >> j) & 1;
-            ind = (i*size +(7-j));
             printf("%u",byte);
         }
         printf("/");
@@ -39,7 +38,7 @@ unsigned char *AffectBits(size_t const size, void const * const ptr , unsigned c
 
 
 void ind_fr_bloc(unsigned char bloc ,unsigned char *ligne ,unsigned char * colonne){
-  unsigned char cl,cl_tmp,lg_tmp;
+  unsigned char cl_tmp,lg_tmp;
 
   // remplir par la lignepar le 5éme bit
   lg_tmp = bloc >> 5 & 1;
@@ -99,13 +98,11 @@ unsigned char * convert_48x8_64x6(unsigned char * chaine_48x8 , unsigned char * 
   unsigned char bloc = {0};
   unsigned char bloc_tmp = {0};
   int shift;
-  int ind;
   for(int i = 0 ; i < 8 ; i++){
       bloc_tmp = 0 ;
       bloc = 0;
       for(int j = 0 ; j< 6; j++){
         if(chaine_48x8[i*6+j] == '1'){
-          ind = (i*6+j);
           shift = 5-j;
           bloc_tmp = (bloc_tmp >> shift) | 1;
           bloc_tmp = bloc_tmp << shift;
@@ -193,7 +190,7 @@ unsigned char *inverse_permutation(unsigned char *text_claire,unsigned char * pe
 }
 
 unsigned char * conv_64x4_to_32x4(unsigned char * bloc_64x4 , unsigned char * bloc_32_4){
-  char bloc , bloc_tmp =0;;
+  char  bloc_tmp =0;;
   for(int i = 0; i < 4 ; i++){
     bloc_tmp = 0;
     bloc_tmp = bloc_64x4[i*2] << 4| bloc_64x4[(i*2)+1] ;
@@ -296,15 +293,16 @@ unsigned char * shift_left_twice( unsigned char * key){
 
 
 
-
+void free_(unsigned char * pt){
+  free(pt);
+  pt = NULL;
+}
 
 void generation_des_cle(unsigned char * key_56x8){
 
   unsigned char * left  = initialisation_bloc(28);
   unsigned char * right = initialisation_bloc(28);
   unsigned char * combiner = initialisation_bloc(56);
-
-
   unsigned char * key_56x8_string = initialisation_bloc(7*8);
 
   // convertir la cle key_56x8 on string 
@@ -350,14 +348,19 @@ void generation_des_cle(unsigned char * key_56x8){
     }   
     
 	} 
+
+  free_(left);
+  free_(right);
+  free_(combiner);
+  free_(key_56x8);
+
 }
 
 
 unsigned char * F(unsigned char * R0, unsigned char tab_key[48]){
 
-  unsigned char * bloc_48       =   initialisation_bloc(6);
-  unsigned char * txt_cl_Ap     =   initialisation_bloc(8);
-  unsigned char * mon_bloc_64x6 = initialisation_bloc(8);
+  unsigned char * bloc_48       =       initialisation_bloc(6);
+  unsigned char * mon_bloc_64x6 =        initialisation_bloc(8);
   unsigned char * mon_chaine_48x8_test = initialisation_bloc(6*8);
   unsigned char * mon_bloc_64x4 = initialisation_bloc(8);
   unsigned char * mon_bloc_32x8 = initialisation_bloc(4);
@@ -377,6 +380,14 @@ unsigned char * F(unsigned char * R0, unsigned char tab_key[48]){
   mon_bloc_32x8 = conv_64x4_to_32x4(mon_bloc_64x4, mon_bloc_32x8);
   /* Faire la permutation secondaire */
   perm_bloc_32x8 = permutation_secondaire(mon_bloc_32x8, perm_bloc_32x8);
+
+  free_(bloc_48);
+  free_(mon_bloc_64x4);
+  free_(mon_chaine_48x8_test);
+  free_(mon_bloc_64x6);
+  free_(mon_bloc_32x8);
+  free_(cle_xor_sor_E);
+
   return  perm_bloc_32x8;
 
 }
@@ -433,6 +444,9 @@ unsigned char * etape_de_compression(unsigned char * perm_txt_cl,unsigned char t
     new_sortie[i] = new_R1[i-4];
   }
 
+  free_(sortie_F);
+  free_(new_R1);
+
   return new_sortie;
 }
 
@@ -442,8 +456,6 @@ unsigned char * etape_de_compression(unsigned char * perm_txt_cl,unsigned char t
 unsigned char * des_encrypte(unsigned char * message , unsigned char * cle){
 
   unsigned char * perm_txt_cl   =   initialisation_bloc(8);
-  unsigned char * perm_txt_en   =   initialisation_bloc(8);
-  unsigned char * sortie_etape_compression = initialisation_bloc(8);
   unsigned char * key_56x8 = initialisation_bloc(7);
   unsigned char * before_final_encrypte = initialisation_bloc(8);
   unsigned char * final_encrypte = initialisation_bloc(8);
@@ -473,6 +485,12 @@ unsigned char * des_encrypte(unsigned char * message , unsigned char * cle){
 
   for(int i = 0; i< 8;i++)
     txt_en[i] = final_encrypte[i];
+
+  free_(perm_txt_cl);
+  free_(key_56x8);
+  free_(before_final_encrypte);
+  free_(final_encrypte);
+
 
   return txt_en;
 }
@@ -509,6 +527,11 @@ unsigned char * des_decrypte(unsigned char * message , unsigned char * cle){
 
   final_encrypte = inverse_permutation(before_final_encrypte, final_encrypte, 8);
 
+
+  free_(perm_txt_en);
+  free_(before_final_encrypte);
+  free_(key_56x8); 
+
   return final_encrypte;
 }
 
@@ -531,7 +554,7 @@ unsigned char * enctypte_tout(unsigned char * tout_msg , int taille, unsigned ch
   // printf("nouvelle taille = %d \n",nouvelle_taille);
   unsigned char * enc_tout_msg =  initialisation_bloc(nouvelle_taille);
   unsigned char * message_orga =  initialisation_bloc(nouvelle_taille);
-  unsigned char * enc_bloc = initialisation_bloc(8);
+  unsigned char * enc_bloc =      initialisation_bloc(8);
   int tours = nouvelle_taille/8 ;
   int ind_bloc;
 
@@ -553,6 +576,10 @@ unsigned char * enctypte_tout(unsigned char * tout_msg , int taille, unsigned ch
   // printf("message après chiffrement = ");
   // printBits(nouvelle_taille*sizeof(unsigned char), enc_tout_msg);
   // puts("");
+
+  free_(message_orga);
+  free_(enc_bloc);
+
 
   return enc_tout_msg;
 }
@@ -579,6 +606,8 @@ unsigned char * decrypte_tout(unsigned char * tout_msg , int taille, unsigned ch
   // printf("message après déchiffrement = \n");
   // printBits(taille*sizeof(unsigned char), dec_tout_msg);
   // puts("");
+
+  free_(dec_bloc);
 
   return dec_tout_msg;
 }
