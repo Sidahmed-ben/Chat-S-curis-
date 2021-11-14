@@ -8,22 +8,25 @@
 
 
 struct key{
-    BIGNUM* pub ;
-    BIGNUM* priv ;
-    BIGNUM* n;
+    unsigned char  pub[6] ;
+    unsigned char  priv[33] ;
+    unsigned char  n[33];
 };
 
 typedef struct key  key_;
 
-static key_ key ;
-static BIGNUM *p,*q,*n,*fi_n,*e,*d;
-static BIGNUM *message_enc;
-static BIGNUM *message_dec;
+// static key_ key_cl ;
+// static BIGNUM *p_cl,*q_cl,*n_cl,*fi_n_cl,*e_cl,*d_cl;
+// static BIGNUM *message_enc_cl;
+// static BIGNUM *message_dec_cl;
 
+// static key_ key_sr ;
+// static BIGNUM *p_sr,*q_sr,*n_sr,*fi_n_sr,*e_sr,*d_sr;
+// static BIGNUM *message_enc_sr;
+// static BIGNUM *message_dec_sr;
 
-void init_bignum();
-void gen_rsa_key(int taille);
-void rsa_enc(unsigned char * message);
-void rsa_dec(unsigned char * message);
+void gen_rsa_key(int taille, key_* key);
+void rsa_enc(unsigned char * message,unsigned char * message_enc,key_ * key);
+void rsa_dec(unsigned char * message, unsigned char * message_dec , key_ * key);
 
 #endif

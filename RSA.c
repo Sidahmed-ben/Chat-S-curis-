@@ -1,27 +1,31 @@
 
 
 #include "RSA.h"
+#include <openssl/bn.h>
+#include <openssl/ossl_typ.h>
 
 
 void init_bignum(){
-    message_enc = BN_new();
-    message_dec = BN_new();
+
+}
+
+
+
+
+void gen_rsa_key(int taille,key_ * key){
+    BIGNUM * test = BN_new();
+    BN_CTX *ctx;
+    ctx = BN_CTX_new();
+    BIGNUM * sub_1 = BN_new();
+
+
+    BIGNUM *p,*q,*n,*fi_n,*e,*d;
     fi_n = BN_new();
     p = BN_new();
     q = BN_new();
     n = BN_new();
     e = BN_new();
     d = BN_new();
-}
-
-
-
-
-void gen_rsa_key(int taille){
-    BIGNUM * test = BN_new();
-    BN_CTX *ctx;
-    ctx = BN_CTX_new();
-    BIGNUM * sub_1 = BN_new();
 
     static const char rnd_seed[] = "string to make the random number";
     static const char rnd_seed2[] =  "generator think it has entropy";
@@ -32,13 +36,7 @@ void gen_rsa_key(int taille){
     RAND_seed(rnd_seed2, sizeof rnd_seed2); 
     BN_generate_prime_ex(q, taille/2, 0, NULL, NULL, NULL);
 
-    // printf(" p = ");
-    // BN_print_fp(stdout,p);
-    // printf("\n");
 
-    // printf(" q = ");
-    // BN_print_fp(stdout,q);
-    // printf("\n");
 
     if(BN_cmp(p, q) == 0){
         printf(" ERROR PRIME EQUAL \n");
@@ -50,10 +48,6 @@ void gen_rsa_key(int taille){
         exit(1); 
     }
 
-    // printf(" n =  ");
-    // BN_print_fp(stdout,n);
-    // printf("\n");
-
     char exp[6] = "65537";
 
     if(!BN_dec2bn(&e, exp)){
@@ -61,10 +55,6 @@ void gen_rsa_key(int taille){
         exit(1); 
     }
 
-
-    // printf(" e = ");
-    // BN_print_fp(stdout,e);
-    // printf("\n");
 
     char * num_1 = "1";
     if(!BN_dec2bn(&sub_1, num_1)){
@@ -83,24 +73,10 @@ void gen_rsa_key(int taille){
     }
 
 
-    // printf(" p-1  = ");
-    // BN_print_fp(stdout,p);
-    // printf("\n");
-
-
-
-    // printf(" q-1  = ");
-    // BN_print_fp(stdout,q);
-    // printf("\n");
-
     if(!BN_mul(fi_n ,p , q, ctx)){
         printf(" ERROR MULTIPLICATION \n");
         exit(1); 
     }
-
-    // printf(" fi_n  = ");
-    // BN_print_fp(stdout,fi_n);
-    // printf("\n");
 
 
     if(!BN_mod_inverse(d, e, fi_n, ctx)){
@@ -108,66 +84,117 @@ void gen_rsa_key(int taille){
         exit(1); 
     }
 
-    // printf(" d  = ");
-    // BN_print_fp(stdout,d);
-    // printf("\n");
 
-    // BN_mod_mul(test,d,e,fi_n,ctx);
+    unsigned char * pub,*priv,*nn;
 
-    // printf(" test  = ");
-    // BN_print_fp(stdout,test);
-    // printf("\n");
-    key.pub  = e;
-    key.priv = d;
-    key.n = n;
-    
+
+    pub  = "10001";
+    priv = ((unsigned char *)BN_bn2hex(d));
+    nn   = ((unsigned char *)BN_bn2hex(n));
+
+    for(int i = 0; i< 32 ; i++)
+        key->priv[i] = priv[i];
+
+    for(int i = 0; i< 32 ; i++)
+        key->n[i] = nn[i];
+
+    for(int i = 0; i< 5 ; i++)
+        key->pub[i] = pub[i];
+
+
+    free(fi_n);
+    free(p);
+    free(q);
+    free(n);
+    free(e);
+    free(d);
 }
 
 
 
 
 
-void rsa_enc(unsigned char * message){
+void rsa_enc(unsigned char * message,unsigned char * message_enc,key_ * key){
     BN_CTX *ctx;
     ctx = BN_CTX_new();
-    //char  * message = "12345678"; 
-    // printf("%lu",strlen(message));
-    if(!BN_hex2bn(&message_enc, (char*)message)){
+
+
+    BIGNUM * bignum_message_enc = BN_new();
+    BIGNUM * e = BN_new();
+    BIGNUM * n = BN_new();
+
+
+    if(!BN_hex2bn(&bignum_message_enc, (char*)message)){
         printf(" ERROR BN_hex2bn rsa_enc");
         exit(0);
     }
 
-    printf("message après transformation en BIGNUM ");
-    BN_print_fp(stdout, message_enc);
-    printf("\n");
+    if(!BN_hex2bn(&e,((char*)key->pub))){
+        printf(" ERROR BN_hex2bn rsa_enc");
+        exit(0);
+    }
 
-    if(!BN_mod_exp(message_enc, message_enc ,key.pub,key.n, ctx)){
+    if(!BN_hex2bn(&n,((char*)key->n))){
+        printf(" ERROR BN_hex2bn rsa_enc");
+        exit(0);
+    }
+
+
+    if(!BN_mod_exp(bignum_message_enc, bignum_message_enc ,e,n, ctx)){
         printf(" ERROR MULTIPLICATION  rsa_enc \n");
         exit(1); 
     }
 
-    printf("message après chiffrement  ");
-    BN_print_fp(stdout, message_enc);
-    printf("\n");
+    unsigned char * msg_enc_tmp = (unsigned char *)BN_bn2hex(bignum_message_enc);  
+
+    for(int i = 0; i< 32;i++){
+        message_enc[i] = msg_enc_tmp[i];
+    }
+    message_enc[32]= '\0';
+
+
 }
 
 
 
 
-void rsa_dec(unsigned char * message){
+void rsa_dec(unsigned char * message, unsigned char * message_dec , key_ * key){
     BN_CTX *ctx;
     ctx = BN_CTX_new();
 
-    if(!BN_mod_exp(message_dec, message_enc ,key.priv,key.n, ctx)){
-        printf(" ERROR MULTIPLICATION rsa_dec  \n");
+    BIGNUM * bignum_message_dec = BN_new() ;
+    BIGNUM * d = BN_new();
+    BIGNUM * n = BN_new();
+
+
+    if(!BN_hex2bn(&bignum_message_dec, (char*)message)){
+        printf(" ERROR BN_hex2bn rsa_dec 1");
+        exit(0);
+    }
+
+    if(!BN_hex2bn(&d,((char*)key->priv))){
+        printf(" ERROR BN_hex2bn rsa_dec 2 ");
+        exit(0);
+    }
+
+    if(!BN_hex2bn(&n,((char*)key->n))){
+        printf(" ERROR BN_hex2bn rsa_dec 3");
+        exit(0);
+    }
+
+
+    if(!BN_mod_exp(bignum_message_dec, bignum_message_dec ,d,n, ctx)){
+        printf(" ERROR MULTIPLICATION rsa_dec  4 \n");
         exit(1); 
     }
 
-    message = (unsigned char *)BN_bn2hex(message_dec);
+    unsigned char * message_dec_tmp;
+    message_dec_tmp = (unsigned char *)BN_bn2hex(bignum_message_dec);
 
-    printf("message après déchiffrement  ");
-    for(int i =0; i < 8;i++)
-        printf("%c",message[i]);
-    printf("\n");
+
+    for(int i = 0; i< 8;i++){
+        message_dec[i] = message_dec_tmp[i];
+    }
+    message_dec[8]= '\0';
 
 }
