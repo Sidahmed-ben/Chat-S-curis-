@@ -23,6 +23,7 @@
 int pas_de_connexion_cl = 1;
 int pas_de_connexion_sr = 1;
 
+unsigned char  table_cle_char[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
 unsigned char Cle_symetrique_server[] = "AFFDD111";
 unsigned char Cle_symetrique_client[] = "AABBCCDD";
@@ -164,6 +165,7 @@ void *premiere_connection_sr(void *arg) {
   unsigned char * pub  = key_sr->pub;
   unsigned char * priv = key_sr-> priv;
   unsigned char * nn   = key_sr->n; 
+  
   for(int i = 0; i< 32;i++)
     ma_cle_pub[i] = nn[i];
   for(int i = 0; i< 5;i++)
@@ -208,8 +210,11 @@ void *premiere_connection_sr(void *arg) {
   for(int i = 0 ; i< 5; i++)
     key_pub_client.pub[i] = pub_client[i+32];
 
+  
   rsa_enc(Cle_symetrique_server,chiffrement_cle_symetrique_server, &key_pub_client);
   // printf("clè serveur chiffré %s\n", chiffrement_cle_symetrique_server);
+
+
   n = sendto(sock, chiffrement_cle_symetrique_server, CLE_SYM_CHIFF, 0, (struct sockaddr *)&from_sr,length);
   if (n < 0) {
     error("Sendto");

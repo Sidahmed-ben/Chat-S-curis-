@@ -1,3 +1,5 @@
+#include "clserv.h"
+#include "graphique.h"
 #include <gtk/gtk.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -9,9 +11,6 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include "graphique.h"
-#include "clserv.h"
-
 
 int sock = 0, n = 0;
 socklen_t fromlen = 0;
@@ -23,38 +22,35 @@ socklen_t length = 0;
 struct hostent *hp = 0;
 char arg;
 pthread_t threads[2];
-st *s ; 
+st *s;
 
-
-
+// Cette fonction est appelè en cas ou l'utilisateur quite le tchat avec (Ctrl +
+// c) ou en appuyant sur la boutton exit en haut à droite , pour attendre les
+// threads et pour libèrer la mèmoire .
 void mon_exit(GtkWidget *widget, gpointer callback_data) {
-
   int rc = pthread_kill(threads[0], SIGUSR1);
   if (rc < 0)
     perror("pthread_kill 0 failed");
-
   rc = pthread_kill(threads[1], SIGUSR1);
   if (rc < 0)
     perror("pthread_kill 1 failed");
-
   rc = pthread_join(threads[0], NULL);
   if (rc < 0)
     perror("pthread_join 0 failed");
-
   rc = pthread_join(threads[1], NULL);
   if (rc < 0)
     perror("pthread_join 1 failed");
-
   close(sock);
+
+  free(s);
   gtk_main_quit();
 }
-
-
 
 int main(int argc, char *argv[]) {
 
   signal(SIGINT, sigint_handler);
   arg = argv[1][0];
+
   // partie rèseau
 
   if (argc < 3) {
@@ -111,6 +107,8 @@ int main(int argc, char *argv[]) {
   GtkWidget *entry;
   GtkWidget *fixed;
 
+
+
   gtk_init(&argc, &argv);
 
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -154,13 +152,12 @@ int main(int argc, char *argv[]) {
 
   init_list(list);
 
-  s = (st*)malloc(sizeof(s)); 
+  s = (st *)malloc(sizeof(s));
   s->entry = entry;
   s->arg = arg;
 
   // Gerer l'èvenement Click sur le boutton Envoyer
-  g_signal_connect(G_OBJECT(Envoyer), "clicked", G_CALLBACK(Envoyer_button),
-                   s);
+  g_signal_connect(G_OBJECT(Envoyer), "clicked", G_CALLBACK(Envoyer_button), s);
 
   // Gerer l'èvenement de quitter le tchat
   g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(mon_exit), NULL);

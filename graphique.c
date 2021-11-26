@@ -1,16 +1,16 @@
-#include "clserv.h"
+// #include "clserv.h"
 #include "graphique.h"
-#include <gtk/gtk.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <pthread.h>
-#include <semaphore.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
+// #include <gtk/gtk.h>
+// #include <netdb.h>
+// #include <netinet/in.h>
+// #include <pthread.h>
+// #include <semaphore.h>
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <string.h>
+// #include <sys/socket.h>
+// #include <sys/types.h>
+// #include <unistd.h>
 
 //  variables globales
 
