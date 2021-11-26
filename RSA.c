@@ -5,15 +5,8 @@
 #include <openssl/ossl_typ.h>
 
 
-void init_bignum(){
-
-}
-
-
-
-
 void gen_rsa_key(int taille,key_ * key){
-    BIGNUM * test = BN_new();
+    // BIGNUM * test = BN_new();
     BN_CTX *ctx;
     ctx = BN_CTX_new();
     BIGNUM * sub_1 = BN_new();
@@ -102,6 +95,8 @@ void gen_rsa_key(int taille,key_ * key){
         key->pub[i] = pub[i];
 
 
+    free(sub_1);
+    free(ctx);
     free(fi_n);
     free(p);
     free(q);
@@ -152,6 +147,10 @@ void rsa_enc(unsigned char * message,unsigned char * message_enc,key_ * key){
     }
     message_enc[32]= '\0';
 
+    free(ctx);
+    free(e);
+    free(n);
+    free(bignum_message_enc);
 
 }
 
@@ -197,4 +196,9 @@ void rsa_dec(unsigned char * message, unsigned char * message_dec , key_ * key){
     }
     message_dec[8]= '\0';
 
+
+    free(ctx);
+    free(d);
+    free(n);
+    free(bignum_message_dec);
 }
