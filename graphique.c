@@ -28,12 +28,12 @@ void key_press_event(GtkWidget *window, GdkEventKey *gkey, st * s) {
       //fprintf(stdout, " str = %s", str);
       if (strlen(str) != 0) {
         //fprintf(stdout,"strlen message = %lu \n",strlen(str));
-        append_item(NULL, s->entry, NULL);
+        append_item(NULL,(GtkWidget*) s->entry, NULL);
         if (s->arg == '1')
           envoi_sr(str);
         else
           envoi_cl(str);
-        gtk_entry_set_text(s->entry, "");
+        gtk_entry_set_text((GtkWidget*) s->entry, "");
       }
     }
   }
@@ -63,9 +63,7 @@ void append_item(GtkWidget *widget, gpointer entry, const char *chaine) {
 
   if (chaine == NULL) {
     const gchar *str = gtk_entry_get_text(entry);
-
     store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list)));
-
     gtk_list_store_append(store, &iter);
     gchar str2[5000] = "You :   ";
     strcat(str2, str);

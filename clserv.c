@@ -13,6 +13,8 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <time.h>
+
 
 // Possibilité d'envoyer jusuq'a 4500 caractère 
 #define BUF_SIZE 7000
@@ -25,8 +27,8 @@ int pas_de_connexion_sr = 1;
 
 unsigned char  table_cle_char[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
-unsigned char Cle_symetrique_server[] = "AFFDD111";
-unsigned char Cle_symetrique_client[] = "AABBCCDD";
+unsigned char Cle_symetrique_server[9];
+unsigned char Cle_symetrique_client[9];
 
 unsigned char cle_symetrique_serveur[9];  // c'est la clé utilisèe pour le chiffrement symetrique reçue depuis le serveur(aprés le déchiffrement).  
 unsigned char cle_symetrique_client[9];   // c'est la clé utilisée pour le chiffrement symetrique reçue depuis le client(aprés le déchiffrement) . 
@@ -99,6 +101,11 @@ void *premiere_connection_cl(void *arg) {
     key_pub_serv.pub[i] = cle_pub_serv[i+32];
   
 
+
+  // srand( time( NULL ) );
+  for(int i = 0 ;i < 8 ; i++ )
+    Cle_symetrique_client[i] = table_cle_char[rand()%16];
+  Cle_symetrique_client[8]='\0';
   
   rsa_enc(Cle_symetrique_client,chiffrement_cle_symetrique_client, &key_pub_serv);
 
@@ -210,6 +217,11 @@ void *premiere_connection_sr(void *arg) {
   for(int i = 0 ; i< 5; i++)
     key_pub_client.pub[i] = pub_client[i+32];
 
+
+  srand( time( NULL ) );
+  for(int i = 0 ;i < 8 ; i++ )
+    Cle_symetrique_server[i] = table_cle_char[rand()%16];
+  Cle_symetrique_server[8]='\0';
   
   rsa_enc(Cle_symetrique_server,chiffrement_cle_symetrique_server, &key_pub_client);
   // printf("clè serveur chiffré %s\n", chiffrement_cle_symetrique_server);
@@ -223,7 +235,6 @@ void *premiere_connection_sr(void *arg) {
 
   append_item(NULL, NULL, " ========== Je suis Connectè  =========");
   pas_de_connexion_sr = 0;
-  // sleep(10);
 }
 
 
@@ -239,8 +250,6 @@ void *reception_cl(void *arg) {
     if (n < 0) {
       error("recvfrom");
     }
-
-
 
 
   printf(" je suis dans le client : message rçue  = ");
@@ -261,7 +270,6 @@ void *reception_cl(void *arg) {
   int len_msg_dechif = strlen(dec);
   printf("taille message dechiffré = %d \n",len_msg_dechif);
   printf(" message dec  %s \n",dec);
-
 
 
   append_item(NULL, NULL, dec);
