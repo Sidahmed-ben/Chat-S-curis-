@@ -513,15 +513,15 @@ void message_org(unsigned char * message ,int taille, unsigned char * message_or
   }
   for(int i = 0 ; i< ecart ; i++){
     message_orga[i+taille] = 0; 
-    fprintf(stderr, " i = %d    ",i+taille);
+    // fprintf(stderr, " i = %d    ",i+taille);
 
   }
-  fprintf(stderr,"\n");
+  // fprintf(stderr,"\n");
     
 
-  printf(" je suis dans orga message orga  = \n");
-  printBits(nouvelle_taille*sizeof(unsigned char), message_orga);
-  puts("");
+  // printf(" je suis dans orga message orga  = \n");
+  // printBits(nouvelle_taille*sizeof(unsigned char), message_orga);
+  // puts("");
 
 }
 
@@ -533,7 +533,7 @@ unsigned char * enctypte_tout(unsigned char * tout_msg , int taille, unsigned ch
 
   int ecart = 8-(taille%8);
   int nouvelle_taille = taille+ecart;
-  printf("nouvelle taille = %d \n",nouvelle_taille);
+  // printf("nouvelle taille = %d \n",nouvelle_taille);
   unsigned char * enc_tout_msg =  initialisation_bloc(nouvelle_taille);
   unsigned char * message_orga =  initialisation_bloc(nouvelle_taille);
   unsigned char * enc_bloc = NULL;

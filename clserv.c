@@ -62,37 +62,19 @@ void *premiere_connection_cl(void *arg) {
   if (n < 0) {
     error("Sendto");
   }
-  // fprintf(stderr," je suis dans client ma clé public   ");
-  // for(int i = 0 ; i< 38;i++){
-  //   fprintf(stderr,"%c",ma_cle_pub[i]);
-  //   if(i==31)
-  //     fprintf(stderr,"/");
-  // }
-  // fprintf(stderr,"\n");
+
 
   
   // partie reception de la clé public 
   n = recvfrom(sock, cle_pub_serv, CLE_PUB_SIZE, 0, (struct sockaddr *)&from_cl, &length);
   if (n < 0) {
     error("recvfrom");
-  }
-  // fprintf(stderr," je suis dans client la clé public du serveur   ");
-  // for(int i = 0 ; i< 38;i++){
-  //   fprintf(stderr,"%c",cle_pub_serv[i]);
-  //   if(i==31)
-  //     fprintf(stderr,"/");
-  // }
-  // fprintf(stderr,"\n");
+  }  
 
-
-  
 
   unsigned char chiffrement_cle_symetrique_client[33];
   unsigned char chiffrement_cle_symetrique_serveur[33];
   
-
-  // fprintf(stderr,"ma_clé symetrique  = %s \n",Cle_symetrique_client);
-
   key_ key_pub_serv ;
   for(int i = 0 ; i< 32; i++)
     key_pub_serv.n[i] =  cle_pub_serv[i];
@@ -101,15 +83,12 @@ void *premiere_connection_cl(void *arg) {
     key_pub_serv.pub[i] = cle_pub_serv[i+32];
   
 
-
-  // srand( time( NULL ) );
   for(int i = 0 ;i < 8 ; i++ )
     Cle_symetrique_client[i] = table_cle_char[rand()%16];
   Cle_symetrique_client[8]='\0';
   
   rsa_enc(Cle_symetrique_client,chiffrement_cle_symetrique_client, &key_pub_serv);
 
-  // printf("clè client chiffré %s\n", chiffrement_cle_symetrique_client);
 
   // envoie de la clé symetrique chiffrèe vers le serveur 
   n = sendto(sock, chiffrement_cle_symetrique_client, CLE_SYM_CHIFF, 0, (void *)&server_cl, length);
@@ -125,7 +104,6 @@ void *premiere_connection_cl(void *arg) {
       error("recvfrom");
     }
 
-  //printf("chiffrement_cle_symetrique_serveur reçu depuis le serveur %s",chiffrement_cle_symetrique_serveur);
   rsa_dec(chiffrement_cle_symetrique_serveur,cle_symetrique_serveur,key_cl);
   printf("Clè claire reçue depuis serveur  %s\n", cle_symetrique_serveur);
   
@@ -157,14 +135,6 @@ void *premiere_connection_sr(void *arg) {
   if (n < 0) {
     error("recvfrom");
   }
-  // fprintf(stderr," je suis dans server la clé public du client =   ");
-  // for(int i = 0 ; i< 38;i++){
-  //   fprintf(stderr,"%c",pub_client[i]);
-  //   if(i == 31)
-  //     fprintf(stderr,"/");
-  // }
-  // fprintf(stderr,"\n");
-
 
 
 
@@ -182,15 +152,6 @@ void *premiere_connection_sr(void *arg) {
   if (n < 0) {
     error("Sendto");
   }
-  // fprintf(stderr," je suis dans serveur  ma  clé public   ");
-  // for(int i = 0 ; i< 38;i++){
-  //   fprintf(stderr,"%c",ma_cle_pub[i]);
-  //   if(i==31)
-  //     fprintf(stderr,"/");
-  // }
-  // fprintf(stderr,"\n");
-
-
   
 
   unsigned char chiffrement_cle_symetrique_client[33];
@@ -203,7 +164,6 @@ void *premiere_connection_sr(void *arg) {
       error("recvfrom");
     }
 
-  // printf("chiffrement_cle_symetrique_client reçu depuis le client %s",chiffrement_cle_symetrique_client);
   rsa_dec(chiffrement_cle_symetrique_client,cle_symetrique_client,key_sr);
   printf("Clè claire reçue depuis client  %s\n", cle_symetrique_client);
   
@@ -224,7 +184,6 @@ void *premiere_connection_sr(void *arg) {
   Cle_symetrique_server[8]='\0';
   
   rsa_enc(Cle_symetrique_server,chiffrement_cle_symetrique_server, &key_pub_client);
-  // printf("clè serveur chiffré %s\n", chiffrement_cle_symetrique_server);
 
 
   n = sendto(sock, chiffrement_cle_symetrique_server, CLE_SYM_CHIFF, 0, (struct sockaddr *)&from_sr,length);
@@ -252,25 +211,12 @@ void *reception_cl(void *arg) {
     }
 
 
-  printf(" je suis dans le client : message rçue  = ");
-  printBits(strlen(buf)*sizeof(unsigned char), buf);
-  puts("");
-
-
   unsigned char * dec ;
   int taille_chaine_a_dec = strlen(buf);
-  printf("taille chaine a decrypte %d \n",taille_chaine_a_dec);
   dec = decrypte_tout((unsigned char*)buf, DEC_SIZE,cle_symetrique_serveur);
 
 
-  printf("message après déchiffrement = \n");
-  printBits(taille_chaine_a_dec*sizeof(unsigned char), dec);
-  puts("");
-
   int len_msg_dechif = strlen(dec);
-  printf("taille message dechiffré = %d \n",len_msg_dechif);
-  printf(" message dec  %s \n",dec);
-
 
   append_item(NULL, NULL, dec);
 
@@ -284,7 +230,6 @@ void *reception_cl(void *arg) {
 // Fonction qui reçoit les messages du serveur 
 void *reception_sr(void *arg) {
 
-  // sleep(10);
   while(pas_de_connexion_sr){
     // on attend que le servur fait ça premiére connexion
   }
@@ -296,27 +241,13 @@ void *reception_sr(void *arg) {
       error("recvfrom");
     }
 
-  printf(" je suis dans le serveur : message rçue  = ");
-  printBits(strlen(buf)*sizeof(unsigned char), buf);
-  puts("");
-
 
   unsigned char * dec ;
   int taille_chaine_a_dec = strlen(buf);
-  printf("taille chaine a decrypte %d \n",taille_chaine_a_dec);
   dec = decrypte_tout((unsigned char*)buf, DEC_SIZE,cle_symetrique_client);
 
 
-  printf("message après déchiffrement = \n");
-  printBits(taille_chaine_a_dec*sizeof(unsigned char), dec);
-  puts("");
-
   int len_msg_dechif = strlen(dec);
-  printf("taille message dechiffré = %d \n",len_msg_dechif);
-  printf(" message dec  %s \n",dec);
-
-  // for(int i = 0 ; i< 9 ; i++)
-  //   fprintf(stderr,"%c",dec[i]);
 
   append_item(NULL, NULL, dec);
 
@@ -340,53 +271,16 @@ void envoi_cl(const char *chaine) {
   strcpy(buffer + 1, chaine);
 
   // chiffrer les message avec DES  avant l'envoie 
-
-  //unsigned char   cle[9] = "AFFDD111";
   unsigned char   txt_cl_Av[1024] = "n";
 
   unsigned char * enc ;
 
-  // for(int i = 0; i< strlen(chaine) ; i++)
-  //   txt_cl_Av[i] = chaine[i];
-  // txt_cl_Av[strlen(chaine)] = '\0';
-
-
-  printf("%s",txt_cl_Av);
-
-
-  //txt_cl_Av[strlen(txt_cl_Av)-1] = '\0';
   int taille_chaine_a_enc = strlen(chaine);
-  printf(" la taille = %d \n",taille_chaine_a_enc);
-
-  printf("message avant chiffrement = ");
-  printBits(taille_chaine_a_enc*sizeof(unsigned char), chaine);
-  puts("");
-
-
 
   enc = enctypte_tout((unsigned char *)chaine,taille_chaine_a_enc,Cle_symetrique_client);
-  printf(" je suis dans le client : message après chiffrement = ");
-  printBits(strlen(enc)*sizeof(unsigned char), enc);
-  puts("");
 
   unsigned char * dec ;
   int taille_chaine_a_dec = strlen(enc);
-  printf("taille chaine a decrypte %d \n",taille_chaine_a_dec);
-
-  fprintf(stderr," je suis dans le client cle_symetrique_client  ");
-  printBits(8*sizeof(unsigned char), Cle_symetrique_client);
-  puts("");
-  
-
-  // dec = decrypte_tout((unsigned char*)enc, 1000,Cle_symetrique_client);
-  // printf("message après déchiffrement = \n");
-  // printBits(taille_chaine_a_dec*sizeof(unsigned char), dec);
-  // puts("");
-
-  // int len_msg_dechif = strlen(dec);
-  // printf("taille message dechiffré = %d \n",len_msg_dechif);
-  // printf(" message dec  %s \n",dec);
-
 
 
   n = sendto(sock, enc, BUF_SIZE, 0, (void *)&server_cl, length);
@@ -414,35 +308,11 @@ void envoi_sr(const char *chaine) {
 
 
   int taille_chaine_a_enc = strlen(chaine);
-  printf(" la taille = %d \n",taille_chaine_a_enc);
-
-  printf("message avant chiffrement = ");
-  printBits(taille_chaine_a_enc*sizeof(unsigned char), chaine);
-  puts("");
 
   unsigned char * enc ;
 
 
   enc = enctypte_tout((unsigned char *)chaine,taille_chaine_a_enc,Cle_symetrique_server);
-  printf(" je suis dans le serveur : message après chiffrement = ");
-  printBits(strlen(enc)*sizeof(unsigned char), enc);
-  puts("");
-
-
-  // unsigned char * dec ;
-  // int taille_chaine_a_dec = strlen(enc);
-  // dec = decrypte_tout((unsigned char*)enc, 1000,Cle_symetrique_server);
-  // printf("message après déchiffrement = \n");
-  // printBits(taille_chaine_a_dec*sizeof(unsigned char), dec);
-  // puts("");
-
-  // int len_msg_dechif = strlen(dec);
-  // printf("taille message dechiffré = %d \n",len_msg_dechif);
-  // printf(" message dec  %s \n",dec);
-
-
-
-
 
   n = sendto(sock, enc, BUF_SIZE, 0, (struct sockaddr *)&from_sr,
              length);

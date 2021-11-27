@@ -6,7 +6,6 @@
 
 
 void gen_rsa_key(int taille,key_ * key){
-    // BIGNUM * test = BN_new();
     BN_CTX *ctx;
     ctx = BN_CTX_new();
     BIGNUM * sub_1 = BN_new();
