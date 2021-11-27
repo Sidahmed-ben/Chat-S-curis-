@@ -1,22 +1,4 @@
-// #include "clserv.h"
 #include "graphique.h"
-// #include <gtk/gtk.h>
-// #include <netdb.h>
-// #include <netinet/in.h>
-// #include <pthread.h>
-// #include <semaphore.h>
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <string.h>
-// #include <sys/socket.h>
-// #include <sys/types.h>
-// #include <unistd.h>
-
-//  variables globales
-
-
-
-
 
 
 // cette fonction est èxècutèe en cas ou l'utilisateur appuie sur une touche
@@ -96,10 +78,6 @@ void init_list(GtkWidget *list) {
 
   g_object_unref(store);
 }
-
-// Cette fonction est appelè en cas ou l'utilisateur quite le tchat avec (Ctrl +
-// c) ou en appuyant sur la boutton exit en haut à droite , pour attendre les
-// threads et pour libèrer la mèmoire .
 
 
 // Gerer le signal (SIGINT)
