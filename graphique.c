@@ -1,8 +1,7 @@
 #include "graphique.h"
 
 
-// cette fonction est èxècutèe en cas ou l'utilisateur appuie sur une touche
-// clavier
+// cette fonction est appeler lorsque l'utilisateur appuie sur la touche Entrée
 void key_press_event(GtkWidget *window, GdkEventKey *gkey, st * s) {
   if (gkey->type == GDK_KEY_RELEASE) {
     if (gkey->keyval == 65293) {
@@ -62,20 +61,15 @@ void append_item(GtkWidget *widget, gpointer entry, const char *chaine) {
 
 // Cette fonction initialise le champs d'affichage
 void init_list(GtkWidget *list) {
-
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *column;
   GtkListStore *store;
-
   renderer = gtk_cell_renderer_text_new();
   column = gtk_tree_view_column_new_with_attributes("List Item", renderer,
                                                     "text", LIST_ITEM, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
-
   store = gtk_list_store_new(N_COLUMNS, G_TYPE_STRING);
-
   gtk_tree_view_set_model(GTK_TREE_VIEW(list), GTK_TREE_MODEL(store));
-
   g_object_unref(store);
 }
 

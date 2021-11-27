@@ -375,7 +375,7 @@ void key_64x8_to_56x8(unsigned char *key_64x8, unsigned char *key_56x8) {
 
 
 
-// Fonction qui permet de rassembler les deux sorties (gauche,droite) d'une étape de permutation en une seule  
+// Fonction qui permet de rassembler les deux sorties (gauche,droite) d'une étape de permutation en une seule sortie
 unsigned char *etape_de_compression(unsigned char *perm_txt_cl,
                                     unsigned char tab_key[48]) {
 

@@ -1,5 +1,5 @@
 CC= gcc
-CFLAGS = -w  -pthread
+CFLAGS = -w  -pthread 
 LDFLAGS = -pthread -lssl -lcrypto
 PACKAGE = `pkg-config --cflags --libs gtk+-2.0`
 LIB = /usr/local/lib/
