@@ -5,12 +5,12 @@
 #include <openssl/ossl_typ.h>
 
 
+
+// Fonction qui permet de générer des clés Rsa de taille "taille".
 void gen_rsa_key(int taille,key_ * key){
     BN_CTX *ctx;
     ctx = BN_CTX_new();
     BIGNUM * sub_1 = BN_new();
-
-
     BIGNUM *p,*q,*n,*fi_n,*e,*d;
     fi_n = BN_new();
     p = BN_new();
@@ -19,8 +19,8 @@ void gen_rsa_key(int taille,key_ * key){
     e = BN_new();
     d = BN_new();
 
-    static const char rnd_seed[] = "string to make the random number";
-    static const char rnd_seed2[] =  "generator think it has entropy";
+    static const char rnd_seed[] = "Pour que la cle soit totalement alèatoire";
+    static const char rnd_seed2[] =  " le même principe que que rnd_seed2 ";
 
     RAND_seed(rnd_seed, sizeof rnd_seed); 
     BN_generate_prime_ex(p, taille/2, 0, NULL, NULL, NULL);
@@ -79,7 +79,6 @@ void gen_rsa_key(int taille,key_ * key){
 
     unsigned char * pub,*priv,*nn;
 
-
     pub  = "10001";
     priv = ((unsigned char *)BN_bn2hex(d));
     nn   = ((unsigned char *)BN_bn2hex(n));
@@ -106,8 +105,7 @@ void gen_rsa_key(int taille,key_ * key){
 
 
 
-
-
+// Fonction qui permet de chiffrer un message .
 void rsa_enc(unsigned char * message,unsigned char * message_enc,key_ * key){
     BN_CTX *ctx;
     ctx = BN_CTX_new();
@@ -155,7 +153,7 @@ void rsa_enc(unsigned char * message,unsigned char * message_enc,key_ * key){
 
 
 
-
+// Fonction qui permet de déchiffrer un message. 
 void rsa_dec(unsigned char * message, unsigned char * message_dec , key_ * key){
     BN_CTX *ctx;
     ctx = BN_CTX_new();
