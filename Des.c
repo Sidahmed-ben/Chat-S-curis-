@@ -37,8 +37,6 @@ void AffectBits(size_t const size, void const *const ptr,
   }
 }
 
-
-
 // Cette fonction permet de trouver la ligne et la colonne dans la sbox à partir des 5 bits d'entrèes .
 void ind_fr_bloc(unsigned char bloc, unsigned char *ligne,
                  unsigned char *colonne) {

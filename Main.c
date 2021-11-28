@@ -149,6 +149,7 @@ int main(int argc, char *argv[]) {
                    G_CALLBACK(key_press_event), s);
   gtk_widget_show_all(window);
   /////////////////////////////////////////////////////////////////////////////:
+  
   // Partie exècution des threads
   if (argv[1][0] == '1') {
     // server

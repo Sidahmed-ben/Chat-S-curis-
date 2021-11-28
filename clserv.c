@@ -32,15 +32,15 @@ unsigned char table_cle_char[] = {'0', '1', '2', '3', '4', '5', '6', '7',
                                   '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 // Les deux clés symetriques du serveur et du client initialisées aléatoirement.
-unsigned char Cle_symetrique_server[9];
-unsigned char Cle_symetrique_client[9];
+unsigned char Cle_symetrique_server[17];
+unsigned char Cle_symetrique_client[17];
 
-unsigned char cle_symetrique_serveur[9]; // c'est la clé utilisèe pour le
+unsigned char cle_symetrique_serveur[17]; // c'est la clé utilisèe pour le
+                                          // chiffrement symetrique reçue depuis
+                                          // le serveur(aprés le déchiffrement).
+unsigned char cle_symetrique_client[17]; // c'est la clé utilisée pour le
                                          // chiffrement symetrique reçue depuis
-                                         // le serveur(aprés le déchiffrement).
-unsigned char cle_symetrique_client[9]; // c'est la clé utilisée pour le
-                                        // chiffrement symetrique reçue depuis
-                                        // le client(aprés le déchiffrement) .
+                                         // le client(aprés le déchiffrement) .
 
 // Fonction qui gère les erreurs
 void error(char *msg) {
@@ -88,13 +88,16 @@ void *premiere_connection_cl(void *arg) {
     key_pub_serv.pub[i] = cle_pub_serv[i + 32];
 
   // Création de la clé symétrique du client
-  for (int i = 0; i < 8; i++)
-    Cle_symetrique_client[i] = table_cle_char[rand() % 16];
-  Cle_symetrique_client[8] = '\0';
+  for (int i = 0; i < 16; i++)
+    Cle_symetrique_client[i] = table_cle_char[rand()%16];
+  Cle_symetrique_client[16] = '\0';
+
 
   // chiffrement de la clé symetrique du client pour l'envoyer au serveur .
   rsa_enc(Cle_symetrique_client, chiffrement_cle_symetrique_client,
           &key_pub_serv);
+
+  
 
   // envoie de la clé symetrique chiffrèe vers le serveur
   n = sendto(sock, chiffrement_cle_symetrique_client, CLE_SYM_CHIFF, 0,
@@ -112,6 +115,7 @@ void *premiere_connection_cl(void *arg) {
 
   // Déchiffrement de la clé symetrique reçue depuis le serveur
   rsa_dec(chiffrement_cle_symetrique_serveur, cle_symetrique_serveur, key_cl);
+
   printf("Clè claire reçue depuis serveur  %s\n", cle_symetrique_serveur);
 
   append_item(NULL, NULL, " ========== Je suis Connectè  =========");
@@ -168,12 +172,13 @@ void *premiere_connection_sr(void *arg) {
   // Déchiffrement de la clé symetrique reçue depuis le client
   rsa_dec(chiffrement_cle_symetrique_client, cle_symetrique_client, key_sr);
   printf("Clè claire reçue depuis client  %s\n", cle_symetrique_client);
+  
 
   // Création de la clé symetrique du serveur .
   srand(time(NULL));
-  for (int i = 0; i < 8; i++)
-    Cle_symetrique_server[i] = table_cle_char[rand() % 16];
-  Cle_symetrique_server[8] = '\0';
+  for (int i = 0; i < 16; i++)
+    Cle_symetrique_server[i] =  table_cle_char[rand()%16] ;
+  Cle_symetrique_server[16] = '\0';
 
   // chiffrement de la clé symetrique du serveur .
   rsa_enc(Cle_symetrique_server, chiffrement_cle_symetrique_server,
@@ -235,6 +240,7 @@ void *reception_sr(void *arg) {
     if (n < 0) {
       error("recvfrom");
     }
+
 
     unsigned char *dec;
     // Déchiffrement du message reçu depuis le client

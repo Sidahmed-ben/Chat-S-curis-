@@ -4,8 +4,6 @@
 #include <openssl/bn.h>
 #include <openssl/ossl_typ.h>
 
-
-
 // Fonction qui permet de générer des clés Rsa de taille "taille".
 void gen_rsa_key(int taille,key_ * key){
     BN_CTX *ctx;
@@ -18,18 +16,13 @@ void gen_rsa_key(int taille,key_ * key){
     n = BN_new();
     e = BN_new();
     d = BN_new();
-
     static const char rnd_seed[] = "Pour que la cle soit totalement alèatoire";
     static const char rnd_seed2[] =  " le même principe que que rnd_seed2 ";
-
     RAND_seed(rnd_seed, sizeof rnd_seed); 
     BN_generate_prime_ex(p, taille/2, 0, NULL, NULL, NULL);
 
     RAND_seed(rnd_seed2, sizeof rnd_seed2); 
     BN_generate_prime_ex(q, taille/2, 0, NULL, NULL, NULL);
-
-
-
     if(BN_cmp(p, q) == 0){
         printf(" ERROR PRIME EQUAL \n");
         exit(1);
@@ -82,13 +75,10 @@ void gen_rsa_key(int taille,key_ * key){
     pub  = "10001";
     priv = ((unsigned char *)BN_bn2hex(d));
     nn   = ((unsigned char *)BN_bn2hex(n));
-
     for(int i = 0; i< 32 ; i++)
         key->priv[i] = priv[i];
-
     for(int i = 0; i< 32 ; i++)
         key->n[i] = nn[i];
-
     for(int i = 0; i< 5 ; i++)
         key->pub[i] = pub[i];
 
@@ -107,10 +97,7 @@ void gen_rsa_key(int taille,key_ * key){
 
 // Fonction qui permet de chiffrer un message .
 void rsa_enc(unsigned char * message,unsigned char * message_enc,key_ * key){
-    BN_CTX *ctx;
-    ctx = BN_CTX_new();
-
-
+    BN_CTX *ctx = BN_CTX_new();
     BIGNUM * bignum_message_enc = BN_new();
     BIGNUM * e = BN_new();
     BIGNUM * n = BN_new();
@@ -155,9 +142,7 @@ void rsa_enc(unsigned char * message,unsigned char * message_enc,key_ * key){
 
 // Fonction qui permet de déchiffrer un message. 
 void rsa_dec(unsigned char * message, unsigned char * message_dec , key_ * key){
-    BN_CTX *ctx;
-    ctx = BN_CTX_new();
-
+    BN_CTX *ctx = BN_CTX_new();
     BIGNUM * bignum_message_dec = BN_new() ;
     BIGNUM * d = BN_new();
     BIGNUM * n = BN_new();
@@ -186,13 +171,10 @@ void rsa_dec(unsigned char * message, unsigned char * message_dec , key_ * key){
 
     unsigned char * message_dec_tmp;
     message_dec_tmp = (unsigned char *)BN_bn2hex(bignum_message_dec);
-
-
-    for(int i = 0; i< 8;i++){
+    for(int i = 0; i< 16;i++){
         message_dec[i] = message_dec_tmp[i];
     }
-    message_dec[8]= '\0';
-
+    message_dec[16]= '\0';
 
     free(ctx);
     free(d);
